@@ -1,5 +1,6 @@
 import ui from "./ui.html";
 import { runLoop } from "./loop.js";
+import { sanitizeHistory, MAX_CONTENT_CHARS } from "./history.js";
 
 export default {
   async fetch(request, env) {
@@ -33,7 +34,11 @@ async function handleChat(request, env) {
   }
 
   try {
-    const reply = await runLoop(history, message, env);
+    const reply = await runLoop(
+      sanitizeHistory(history),
+      message.slice(0, MAX_CONTENT_CHARS),
+      env,
+    );
     return json({ reply });
   } catch (err) {
     console.error("chat failed:", err);
