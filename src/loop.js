@@ -17,8 +17,9 @@ const FOOD_WORDS = /\b(eat|lunch|food|makan|hungry|restaurant|hawker)\b/i;
  * history is the prior conversation as OpenAI-style {role, content} messages.
  */
 export async function runLoop(history, message, env) {
-  // If the Places key is missing, Uncle cannot search, so give a safe answer.
-  if (!env.GOOGLE_PLACES_API_KEY || FOOD_WORDS.test(message)) {
+  // If the Places key is missing, Uncle cannot search, so a food question only
+  // gets the safe answer. Anything else still goes to the model.
+  if (!env.GOOGLE_PLACES_API_KEY && FOOD_WORDS.test(message)) {
     return FALLBACK_REPLY;
   }
 
