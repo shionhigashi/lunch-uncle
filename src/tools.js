@@ -135,15 +135,24 @@ async function findLunchPlaces({ query, open_now = false }, env) {
  * Shape Places API results into the fields Uncle needs.
  *
  * open_now is null when the Places response carries no opening hours, which
- * the model must read as "unknown", not as "closed".
+ * the model must read as "unknown", not as "closed". distance_m is null the
+ * same way when a result has no usable coordinates.
  */
 export function formatPlaces(places, origin) {
   return places.map(({ displayName, rating, location, currentOpeningHours }) => ({
     name: displayName?.text ?? "Unnamed",
     rating: rating ?? null,
-    distance_m: Math.round(haversineMetres(origin, location)),
+    distance_m: hasCoordinates(location)
+      ? Math.round(haversineMetres(origin, location))
+      : null,
     open_now: currentOpeningHours?.openNow ?? null,
   }));
+}
+
+function hasCoordinates(point) {
+  return (
+    typeof point?.latitude === "number" && typeof point?.longitude === "number"
+  );
 }
 
 /**

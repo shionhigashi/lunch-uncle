@@ -88,3 +88,21 @@ test("formatPlaces keeps the open-now flag from the Places response", () => {
   assert.equal(formatted[2].distance_m, 0);
   assert.equal(formatted[0].name, "Berseh Food Centre");
 });
+
+test("formatPlaces survives a result with no usable coordinates", () => {
+  const places = [
+    { displayName: { text: "No Location" }, rating: 4.1 },
+    { displayName: { text: "Half A Location" }, location: { latitude: 1.31 } },
+    { displayName: { text: "String Coords" }, location: { latitude: "1.31", longitude: "103.86" } },
+  ];
+
+  const formatted = formatPlaces(places, CT_HUB_2);
+
+  assert.deepEqual(
+    formatted.map((p) => p.distance_m),
+    [null, null, null],
+  );
+  // The place is still recommendable, just without a distance.
+  assert.equal(formatted[0].name, "No Location");
+  assert.equal(formatted[0].rating, 4.1);
+});
